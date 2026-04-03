@@ -3,11 +3,17 @@ import { faker } from "@faker-js/faker";
 import "dotenv/config";
 
 // Configuration
-const SUPABASE_URL = `https://acuuehefzzdzzmttlsly.supabase.co`;
-const SUPABASE_SERVICE_ROLE_KEY = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjdXVlaGVmenpkenptdHRsc2x5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTAyNTY4MiwiZXhwIjoyMDkwNjAxNjgyfQ.d1rLpVvVU0Lrd35JSo2T4OlXnBwF-Youj3tJLuvBhU4`;
-const PASSWORD = `C%h"R5q!CTN*Ab9`;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const PASSWORD = process.env.SUPABASE_DB_PASSWORD;
 
-// Initialize Supabase client with service role key
+if (!SUPABASE_URL || SUPABASE_SERVICE_ROLE_KEY || PASSWORD) {
+  console.log(
+    "Setup SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY and SUPABASE_DB_PASSWORD",
+  );
+  
+}
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 // Fake profile data
