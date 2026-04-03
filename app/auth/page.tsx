@@ -16,8 +16,6 @@ export default function AuthPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  //http://localhost:3000/?code=c4302e3b-e588-4ef3-9658-c6fb0ab0beaf
-
   useEffect(() => {
     if (user && !authLoading) {
       router.push("/");
