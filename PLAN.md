@@ -1,10 +1,14 @@
 # Make this app production ready
 
+Clean Arcitecture
+
+- [ ] Implement working clean architecture
+
 Redesign
 
-- [ ] Switch to bun
-- [ ] Install shadcn
-- [ ] Install shadcn theming
+- [x] Switch to bun
+- [x] Install shadcn
+- [x] Install shadcn theming
 - [ ] Landing page UI
 - [ ] Redesign Discover page
 - [ ] Redesign matches page

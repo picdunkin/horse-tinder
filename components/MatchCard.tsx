@@ -1,14 +1,14 @@
-import { UserProfile } from "@/app/profile/page";
-import { calculateAge } from "@/lib/helpers/calculate-age";
+import type { DiscoveryCardViewModel } from "@/src/interface-adapters/controllers/view-models";
 import Image from "next/image";
-export default function MatchCard({ user }: { user: UserProfile }) {
+
+export default function MatchCard({ user }: { user: DiscoveryCardViewModel }) {
   return (
     <div className="relative w-full max-w-sm mx-auto">
       <div className="card-swipe aspect-[3/4] overflow-hidden">
         <div className="relative w-full h-full">
           <Image
-            src={user.avatar_url}
-            alt={user.full_name}
+            src={user.avatarUrl}
+            alt={user.fullName}
             fill
             className={`object-cover transition-opacity duration-300`}
             priority
@@ -20,7 +20,7 @@ export default function MatchCard({ user }: { user: UserProfile }) {
             <div className="flex items-end justify-between">
               <div>
                 <h2 className="text-2xl font-bold mb-1">
-                  {user.full_name}, {calculateAge(user.birthdate)}
+                  {user.fullName}, {user.age}
                 </h2>
                 <p className="text-sm opacity-90 mb-2">@{user.username}</p>
                 <p className="text-sm leading-relaxed">{user.bio}</p>

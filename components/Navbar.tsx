@@ -1,24 +1,52 @@
 "use client";
-import { useAuth } from "@/contexts/auth-context";
+
+import { getCurrentSessionAction, signOutAction } from "@/app/(auth)/actions";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
 
 export default function Navbar() {
-  const { signOut, user } = useAuth();
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    async function loadSession() {
+      const result = await getCurrentSessionAction();
+      if (result.status === "success") {
+        setUserId(result.session?.userId ?? null);
+      }
+    }
+
+    loadSession();
+  }, [pathname]);
+
+  function handleSignOut() {
+    startTransition(async () => {
+      const result = await signOutAction();
+      if (result.status === "success") {
+        setUserId(null);
+        router.push(result.redirectTo);
+        router.refresh();
+      }
+    });
+  }
+
   return (
     <nav className="relative z-50 bg-slate-900 border-b border-gray-200/50 dark:border-gray-700/50">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center space-x-3">
             <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
-              StreamMatch
+              Horse Tinder
             </span>
           </Link>
 
-          {/* Only show navigation links if user is authenticated */}
-          {user && (
+          {userId ? (
             <div className="hidden md:flex items-center space-x-8">
               <Link
-                href="/matches"
+                href="/discover"
                 className="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 font-medium transition-colors duration-200"
               >
                 Discover
@@ -42,12 +70,13 @@ export default function Navbar() {
                 Profile
               </Link>
             </div>
-          )}
+          ) : null}
 
-          {user ? (
+          {userId ? (
             <button
-              onClick={signOut}
-              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-medium rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md hover:shadow-lg"
+              onClick={handleSignOut}
+              disabled={isPending}
+              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-medium rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
             >
               <svg
                 className="w-4 h-4 mr-1"
@@ -62,11 +91,11 @@ export default function Navbar() {
                   d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                 />
               </svg>
-              Sign Out
+              {isPending ? "Signing Out..." : "Sign Out"}
             </button>
           ) : (
             <Link
-              href="/auth"
+              href="/sign-in"
               className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-pink-500 to-red-500 text-white text-sm font-medium rounded-lg hover:from-pink-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg"
             >
               Sign In

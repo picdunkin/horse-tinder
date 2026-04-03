@@ -1,44 +1,35 @@
 "use client";
 
-import { getUserMatches } from "@/lib/actions/matches";
-import { useEffect, useState } from "react";
-import { UserProfile } from "../profile/page";
+import { getMyMatchesAction } from "@/app/actions";
+import type { ConversationListItemViewModel } from "@/src/interface-adapters/controllers/view-models";
 import Link from "next/link";
-
-interface ChatData {
-  id: string;
-  user: UserProfile;
-  lastMessage?: string;
-  lastMessageTime: string;
-  unreadCount: number;
-}
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function ChatPage() {
-  const [chats, setChats] = useState<ChatData[]>([]);
+  const [chats, setChats] = useState<ConversationListItemViewModel[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     async function loadMatches() {
       try {
-        const userMatches = await getUserMatches();
-        const chatData: ChatData[] = userMatches.map((match) => ({
-          id: match.id,
-          user: match,
-          lastMessage: "Start your conversation!",
-          lastMessageTime: match.created_at,
-          unreadCount: 0,
-        }));
-        setChats(chatData);
-        console.log(userMatches);
-      } catch (error) {
-        console.error(error);
+        const result = await getMyMatchesAction();
+        if (result.status === "success") {
+          setChats(result.conversations);
+          return;
+        }
+
+        if (result.error.code === "not_authenticated") {
+          router.push("/sign-in");
+        }
       } finally {
         setLoading(false);
       }
     }
 
     loadMatches();
-  }, []);
+  }, [router]);
 
   function formatTime(timestamp: string) {
     const date = new Date(timestamp);
@@ -47,16 +38,18 @@ export default function ChatPage() {
 
     if (diffInHours < 1) {
       return "Just now";
-    } else if (diffInHours < 24) {
+    }
+    if (diffInHours < 24) {
       return date.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       });
-    } else if (diffInHours < 48) {
-      return "Yesterday";
-    } else {
-      return date.toLocaleDateString();
     }
+    if (diffInHours < 48) {
+      return "Yesterday";
+    }
+
+    return date.toLocaleDateString();
   }
 
   if (loading) {
@@ -105,30 +98,30 @@ export default function ChatPage() {
         ) : (
           <div className="max-w-2xl mx-auto">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
-              {chats.map((chat, key) => (
+              {chats.map((chat) => (
                 <Link
-                  key={key}
+                  key={chat.id}
                   href={`/chat/${chat.id}`}
                   className="block hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
                 >
                   <div className="flex items-center p-6 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
                     <div className="relative w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
                       <img
-                        src={chat.user.avatar_url}
-                        alt={chat.user.full_name}
+                        src={chat.avatarUrl}
+                        alt={chat.fullName}
                         className="w-full h-full object-cover"
                       />
-                      {chat.unreadCount > 0 && (
+                      {chat.unreadCount > 0 ? (
                         <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
                           {chat.unreadCount}
                         </div>
-                      )}
+                      ) : null}
                     </div>
 
                     <div className="flex-1 min-w-0 ml-4">
                       <div className="flex items-center justify-between mb-1">
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
-                          {chat.user.full_name}
+                          {chat.fullName}
                         </h3>
                         <span className="text-sm text-gray-500 dark:text-gray-400 flex-shrink-0">
                           {formatTime(chat.lastMessageTime)}

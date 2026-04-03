@@ -1,63 +1,41 @@
 "use client";
 
-import { getCurrentUserProfile } from "@/lib/actions/profile";
-import { useEffect, useState } from "react";
+import { getMyDatingProfileAction } from "@/app/actions";
+import type { DatingProfileViewModel } from "@/src/interface-adapters/controllers/view-models";
 import Link from "next/link";
-import { calculateAge } from "@/lib/helpers/calculate-age";
-
-export interface UserProfile {
-  id: string;
-  full_name: string;
-  username: string;
-  email: string;
-  gender: "male" | "female" | "other";
-  birthdate: string;
-  bio: string;
-  avatar_url: string;
-  preferences: UserPreferences;
-  location_lat?: number;
-  location_lng?: number;
-  last_active: string;
-  is_verified: boolean;
-  is_online: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface UserPreferences {
-  age_range: {
-    min: number;
-    max: number;
-  };
-  distance: number;
-  gender_preference: ("male" | "female" | "other")[];
-}
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState<DatingProfileViewModel | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     async function loadProfile() {
       try {
-        const profileData = await getCurrentUserProfile();
-        console.log(profileData);
-        if (profileData) {
-          setProfile(profileData);
-        } else {
-          setError("Failed to load profile");
+        const result = await getMyDatingProfileAction();
+        if (result.status === "success") {
+          setProfile(result.profile);
+          return;
         }
-      } catch (err) {
-        console.error("Error loading profile: ", err);
-        setError("Failed to load profile");
+
+        if (result.error.code === "not_authenticated") {
+          router.push("/sign-in");
+          return;
+        }
+
+        setError(result.error.message);
+      } catch {
+        setError("Failed to load profile.");
       } finally {
         setLoading(false);
       }
     }
 
     loadProfile();
-  }, []);
+  }, [router]);
 
   if (loading) {
     return (
@@ -116,8 +94,8 @@ export default function ProfilePage() {
                   <div className="relative">
                     <div className="w-24 h-24 rounded-full overflow-hidden">
                       <img
-                        src={profile.avatar_url || "/default-avatar.png"}
-                        alt={profile.full_name}
+                        src={profile.avatarUrl || "/default-avatar.png"}
+                        alt={profile.fullName}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -125,14 +103,14 @@ export default function ProfilePage() {
 
                   <div className="flex-1">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                      {profile.full_name}, {calculateAge(profile.birthdate)}
+                      {profile.fullName}, {profile.age}
                     </h2>
                     <p className="text-gray-600 dark:text-gray-400 mb-2">
                       @{profile.username}
                     </p>
                     <p className="text-sm text-gray-500 dark:text-gray-500">
                       Member since{" "}
-                      {new Date(profile.created_at).toLocaleDateString()}
+                      {new Date(profile.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -181,8 +159,8 @@ export default function ProfilePage() {
                           Age Range
                         </label>
                         <p className="text-gray-900 dark:text-white">
-                          {profile.preferences.age_range.min} -{" "}
-                          {profile.preferences.age_range.max} years
+                          {profile.preferences.ageRange.min} -{" "}
+                          {profile.preferences.ageRange.max} years
                         </p>
                       </div>
                       <div>
@@ -190,7 +168,7 @@ export default function ProfilePage() {
                           Distance
                         </label>
                         <p className="text-gray-900 dark:text-white">
-                          Up to {profile.preferences.distance} km
+                          Up to {profile.preferences.distanceKm} km
                         </p>
                       </div>
                     </div>
@@ -257,6 +235,12 @@ export default function ProfilePage() {
                     </span>
                     <span className="text-gray-500 dark:text-gray-400">
                       @{profile.username}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700">
+                    <span className="text-gray-900 dark:text-white">Email</span>
+                    <span className="text-gray-500 dark:text-gray-400">
+                      {profile.email ?? "Not available"}
                     </span>
                   </div>
                 </div>

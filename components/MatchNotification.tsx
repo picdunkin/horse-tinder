@@ -1,8 +1,10 @@
-import { UserProfile } from "@/app/profile/page";
+"use client";
+
+import type { MatchListItemViewModel } from "@/src/interface-adapters/controllers/view-models";
 import { useEffect, useState } from "react";
 
 interface MatchNotificationProps {
-  match: UserProfile;
+  match: MatchListItemViewModel;
   onClose: () => void;
   onStartChat: () => void;
 }
@@ -43,8 +45,8 @@ export default function MatchNotification({
         <div className="flex items-start space-x-4">
           <div className="relative w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
             <img
-              src={match.avatar_url}
-              alt={match.full_name}
+              src={match.avatarUrl}
+              alt={match.fullName}
               className="w-full h-full object-cover"
             />
           </div>
@@ -73,7 +75,7 @@ export default function MatchNotification({
             </div>
 
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              You and <span className="font-semibold">{match.full_name}</span>{" "}
+              You and <span className="font-semibold">{match.fullName}</span>{" "}
               liked each other!
             </p>
 

@@ -1,65 +1,90 @@
 "use client";
-import { getPotentialMatches, likeUser } from "@/lib/actions/matches";
-import { useEffect, useState } from "react";
-import { UserProfile } from "../profile/page";
-import { useRouter } from "next/navigation";
-import MatchCard from "@/components/MatchCard";
+
+import { getDiscoveryFeedAction, likeProfileAction } from "@/app/actions";
 import MatchButtons from "@/components/MatchButtons";
+import MatchCard from "@/components/MatchCard";
 import MatchNotification from "@/components/MatchNotification";
+import type {
+  DiscoveryCardViewModel,
+  MatchListItemViewModel,
+} from "@/src/interface-adapters/controllers/view-models";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function MatchesPage() {
-  const [potentialMatches, setPotentialMatches] = useState<UserProfile[]>([]);
+  const [potentialMatches, setPotentialMatches] = useState<
+    DiscoveryCardViewModel[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-
+  const [error, setError] = useState<string | null>(null);
   const [showMatchNotification, setShowMatchNotification] = useState(false);
-  const [matchedUser, setMatchedUser] = useState<UserProfile | null>(null);
-
+  const [matchedUser, setMatchedUser] = useState<MatchListItemViewModel | null>(
+    null,
+  );
   const router = useRouter();
 
   useEffect(() => {
     async function loadUsers() {
       try {
-        const potentialMatchesData = await getPotentialMatches();
-        setPotentialMatches(potentialMatchesData);
-      } catch (error) {
-        console.error(error);
+        const result = await getDiscoveryFeedAction();
+        if (result.status === "success") {
+          setPotentialMatches(result.profiles);
+        } else if (result.error.code === "not_authenticated") {
+          router.push("/sign-in");
+          return;
+        } else {
+          setError(result.error.message);
+        }
+      } catch {
+        setError("Failed to load discovery feed.");
       } finally {
         setLoading(false);
       }
     }
 
     loadUsers();
-  }, []);
+  }, [router]);
 
   async function handleLike() {
-    if (currentIndex < potentialMatches.length) {
-      const likedUser = potentialMatches[currentIndex];
-
-      try {
-        const result = await likeUser(likedUser.id);
-
-        if (result.isMatch) {
-          setMatchedUser(result.matchedUser!);
-          setShowMatchNotification(true);
-        }
-
-        setCurrentIndex((prev) => prev + 1);
-      } catch (err) {
-        console.error(err);
-      }
+    if (currentIndex >= potentialMatches.length) {
+      return;
     }
+
+    const likedUser = potentialMatches[currentIndex];
+    const result = await likeProfileAction(likedUser.id);
+
+    if (result.status === "error") {
+      setError(result.error.message);
+      return;
+    }
+
+    if (result.isMatch && result.matchedProfile) {
+      setMatchedUser(result.matchedProfile);
+      setShowMatchNotification(true);
+    }
+
+    setCurrentIndex((prev) => prev + 1);
   }
 
   function handlePass() {
     if (currentIndex < potentialMatches.length - 1) {
       setCurrentIndex((prev) => prev + 1);
+    } else {
+      setCurrentIndex(potentialMatches.length);
     }
   }
 
-  function handleCloseMatchNotification() {}
+  function handleCloseMatchNotification() {
+    setShowMatchNotification(false);
+    setMatchedUser(null);
+  }
 
-  function handleStartChat() {}
+  function handleStartChat() {
+    if (matchedUser) {
+      router.push(`/chat/${matchedUser.id}`);
+    }
+  }
 
   if (loading) {
     return (
@@ -85,7 +110,8 @@ export default function MatchesPage() {
             No more profiles to show
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Check back later for new matches, or try adjusting your preferences!
+            {error ??
+              "Check back later for new matches, or try adjusting your preferences!"}
           </p>
           <button
             onClick={() => setCurrentIndex(0)}
@@ -94,13 +120,13 @@ export default function MatchesPage() {
             Refresh
           </button>
         </div>
-        {showMatchNotification && matchedUser && (
+        {showMatchNotification && matchedUser ? (
           <MatchNotification
             match={matchedUser}
             onClose={handleCloseMatchNotification}
             onStartChat={handleStartChat}
           />
-        )}
+        ) : null}
       </div>
     );
   }
@@ -151,13 +177,13 @@ export default function MatchesPage() {
           </div>
         </div>
 
-        {showMatchNotification && matchedUser && (
+        {showMatchNotification && matchedUser ? (
           <MatchNotification
             match={matchedUser}
             onClose={handleCloseMatchNotification}
             onStartChat={handleStartChat}
           />
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -1,48 +1,52 @@
 "use client";
 
-import { UserProfile } from "@/app/profile/page";
+import { getMyMatchesAction } from "@/app/actions";
 import ChatHeader from "@/components/ChatHeader";
 import StreamChatInterface from "@/components/StreamChatInterface";
-import { useAuth } from "@/contexts/auth-context";
-import { getUserMatches } from "@/lib/actions/matches";
+import type { MatchListItemViewModel } from "@/src/interface-adapters/controllers/view-models";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function ChatConversationPage() {
-  const [otherUser, setOtherUser] = useState<UserProfile | null>(null);
+  const [otherUser, setOtherUser] = useState<MatchListItemViewModel | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const params = useParams();
-  const { user } = useAuth();
-    const userId = params.userId as string;
+  const userId = params.userId as string;
 
   const chatInterfaceRef = useRef<{ handleVideoCall: () => void } | null>(null);
 
   useEffect(() => {
     async function loadUserData() {
       try {
-        const userMatches = await getUserMatches();
-        const matchedUser = userMatches.find((match) => match.id === userId);
+        const result = await getMyMatchesAction();
+        if (result.status === "error") {
+          if (result.error.code === "not_authenticated") {
+            router.push("/sign-in");
+            return;
+          }
 
+          router.push("/chat");
+          return;
+        }
+
+        const matchedUser = result.matches.find((match) => match.id === userId);
         if (matchedUser) {
           setOtherUser(matchedUser);
         } else {
           router.push("/chat");
         }
-        console.log(userMatches);
-      } catch (error) {
-        console.error(error);
+      } catch {
         router.push("/chat");
       } finally {
         setLoading(false);
       }
     }
 
-    if (user) {
-      loadUserData();
-    }
     loadUserData();
-  }, [userId, router, user]);
+  }, [router, userId]);
 
   if (loading) {
     return (

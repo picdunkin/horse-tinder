@@ -1,6 +1,6 @@
 "use client";
 
-import { uploadProfilePhoto } from "@/lib/actions/profile";
+import { uploadProfilePhotoAction } from "@/app/actions";
 import { useRef, useState } from "react";
 
 export default function PhotoUpload({
@@ -9,7 +9,6 @@ export default function PhotoUpload({
   onPhotoUploaded: (url: string) => void;
 }) {
   const [uploading, setUploading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
@@ -17,28 +16,22 @@ export default function PhotoUpload({
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setError("Please select an image file");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setError("File size must be less than 5MB");
       return;
     }
 
     setUploading(true);
-    setError(null);
 
     try {
-      const result = await uploadProfilePhoto(file);
-      if (result.success && result.url) {
+      const result = await uploadProfilePhotoAction(file);
+      if (result.status === "success") {
         onPhotoUploaded(result.url);
-        setError(null);
-      } else {
-        setError(result.error ?? "Failed to upload photo.");
       }
-    } catch (err) {
-      setError("Failed to change photo");
+    } catch {
+      // Let the parent form own user-facing upload errors.
     } finally {
       setUploading(false);
     }

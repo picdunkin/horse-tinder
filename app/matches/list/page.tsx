@@ -1,23 +1,33 @@
 "use client";
 
-import { UserProfile } from "@/app/profile/page";
-import { getUserMatches } from "@/lib/actions/matches";
-import { useEffect, useState } from "react";
+import { getMyMatchesAction } from "@/app/actions";
+import type { MatchListItemViewModel } from "@/src/interface-adapters/controllers/view-models";
 import Link from "next/link";
-import { calculateAge } from "@/lib/helpers/calculate-age";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function MatchesListPage() {
-  const [matches, setMatches] = useState<UserProfile[]>([]);
+  const [matches, setMatches] = useState<MatchListItemViewModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     async function loadMatches() {
       try {
-        const userMatches = await getUserMatches();
-        setMatches(userMatches);
-        console.log(userMatches);
-      } catch (error) {
+        const result = await getMyMatchesAction();
+        if (result.status === "success") {
+          setMatches(result.matches);
+          return;
+        }
+
+        if (result.error.code === "not_authenticated") {
+          router.push("/sign-in");
+          return;
+        }
+
+        setError(result.error.message);
+      } catch {
         setError("Failed to load matches.");
       } finally {
         setLoading(false);
@@ -25,7 +35,7 @@ export default function MatchesListPage() {
     }
 
     loadMatches();
-  }, []);
+  }, [router]);
 
   if (loading) {
     return (
@@ -61,7 +71,7 @@ export default function MatchesListPage() {
               No matches yet
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Start swiping to find your perfect match!
+              {error ?? "Start swiping to find your perfect match!"}
             </p>
             <Link
               href="/matches"
@@ -73,24 +83,24 @@ export default function MatchesListPage() {
         ) : (
           <div className="max-w-2xl mx-auto">
             <div className="grid gap-4">
-              {matches.map((match, key) => (
+              {matches.map((match) => (
                 <Link
-                  key={key}
+                  key={match.id}
                   href={`/chat/${match.id}`}
                   className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                 >
                   <div className="flex items-center space-x-4">
                     <div className="relative w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
                       <img
-                        src={match.avatar_url}
-                        alt={match.full_name}
+                        src={match.avatarUrl}
+                        alt={match.fullName}
                         className="w-full h-full object-cover"
                       />
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {match.full_name}, {calculateAge(match.birthdate)}
+                        {match.fullName}, {match.age}
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                         @{match.username}

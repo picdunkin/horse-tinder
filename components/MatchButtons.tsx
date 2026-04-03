@@ -1,3 +1,5 @@
+"use client";
+
 interface MatchButtonsProps {
   onLike: () => void;
   onPass: () => void;

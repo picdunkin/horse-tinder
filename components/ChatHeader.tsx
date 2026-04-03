@@ -1,11 +1,10 @@
 "use client";
 
-import { UserProfile } from "@/app/profile/page";
-import { calculateAge } from "@/lib/helpers/calculate-age";
+import type { MatchListItemViewModel } from "@/src/interface-adapters/controllers/view-models";
 import { useRouter } from "next/navigation";
 
 interface ChatHeaderProps {
-  user: UserProfile;
+  user: MatchListItemViewModel;
   onVideoCall?: () => void;
 }
 export default function ChatHeader({ user, onVideoCall }: ChatHeaderProps) {
@@ -36,8 +35,8 @@ export default function ChatHeader({ user, onVideoCall }: ChatHeaderProps) {
           <div className="flex items-center space-x-3">
             <div className="relative w-12 h-12 rounded-full overflow-hidden">
               <img
-                src={user.avatar_url}
-                alt={user.full_name}
+                src={user.avatarUrl}
+                alt={user.fullName}
                 className="w-full h-full object-cover"
               />
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
@@ -45,7 +44,7 @@ export default function ChatHeader({ user, onVideoCall }: ChatHeaderProps) {
 
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {user.full_name}, {calculateAge(user.birthdate)}
+                {user.fullName}, {user.age}
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 @{user.username}

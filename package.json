@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --test --import tsx tests/unit/entities/*.test.ts tests/unit/application/*.test.ts tests/unit/interface-adapters/*.test.ts",
     "create-fake-profiles": "tsx scripts/create-fake-profiles.ts"
   },
   "dependencies": {

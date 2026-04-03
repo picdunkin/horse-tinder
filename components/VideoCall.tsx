@@ -1,4 +1,6 @@
-import { getStreamVideoToken } from "@/lib/actions/stream";
+"use client";
+
+import { getVideoCallTokenForCurrentUserAction } from "@/app/actions";
 import {
   Call,
   CallControls,
@@ -31,6 +33,8 @@ export default function VideoCall({
 
   useEffect(() => {
     let isMounted = true;
+    let mountedClient: StreamVideoClient | null = null;
+    let mountedCall: Call | null = null;
 
     async function initializeVideoCall() {
       if (hasJoined) {
@@ -39,41 +43,53 @@ export default function VideoCall({
 
       try {
         setError(null);
-        const { token, userId, userImage, userName } =
-          await getStreamVideoToken();
+        const tokenResult = await getVideoCallTokenForCurrentUserAction();
+        if (tokenResult.status === "error") {
+          setError(tokenResult.error.message);
+          return;
+        }
 
-        if (!isMounted) return;
+        const { token, userId, userImage, userName } = tokenResult.token;
 
-        const videoClient = new StreamVideoClient({
-          apiKey: process.env.NEXT_PUBLIC_STREAM_API_KEY,
+        if (!isMounted) {
+          return;
+        }
+
+        mountedClient = new StreamVideoClient({
+          apiKey: process.env.NEXT_PUBLIC_STREAM_API_KEY!,
           user: {
-            id: userId!,
+            id: userId,
             name: userName,
             image: userImage,
           },
           token,
         });
 
-        if (!isMounted) return;
-
-        const videoCall = videoClient.call("default", callId);
-
-        if (isIncoming) {
-          await videoCall.join();
-        } else {
-          await videoCall.join({ create: true });
+        if (!isMounted) {
+          return;
         }
 
-        if (!isMounted) return;
+        mountedCall = mountedClient.call("default", callId);
 
-        setClient(videoClient);
-        setCall(videoCall);
+        if (isIncoming) {
+          await mountedCall.join();
+        } else {
+          await mountedCall.join({ create: true });
+        }
+
+        if (!isMounted) {
+          return;
+        }
+
+        setClient(mountedClient);
+        setCall(mountedCall);
         setHasJoined(true);
-      } catch (error) {
-        console.error(error);
+      } catch {
         setError("Failed to initiate call");
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
@@ -81,15 +97,15 @@ export default function VideoCall({
 
     return () => {
       isMounted = false;
-      if (call && hasJoined) {
-        call.leave();
+      if (mountedCall && hasJoined) {
+        mountedCall.leave();
       }
 
-      if (client) {
-        client.disconnectUser();
+      if (mountedClient) {
+        mountedClient.disconnectUser();
       }
     };
-  }, [callId, isIncoming, hasJoined]);
+  }, [callId, hasJoined, isIncoming]);
 
   if (loading) {
     return (

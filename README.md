@@ -1,31 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Horse Tinder
 
-## Getting Started
+Horse Tinder is a Next.js 16 app with a clean-architecture layout for auth,
+dating, matching, messaging, and video calls.
 
-First, run the development server:
+## Architecture
+
+The codebase is split into five layers:
+
+- `app/` and `components/`: framework-facing UI and thin server-function entrypoints.
+- `src/interface-adapters/`: controllers and UI-safe view models.
+- `src/application/`: repository and service contracts plus use cases.
+- `src/entities/`: domain models, schemas, and domain errors.
+- `src/infrastructure/`: Supabase and Stream implementations.
+
+Dependency direction is enforced in `eslint.config.mjs` with restricted import
+rules.
+
+## Feature entrypoints
+
+- `app/actions.ts`: profile, discovery, matches, messaging, and video-call actions.
+- `app/(auth)/actions.ts`: sign-in, sign-up, sign-out, session lookup, and email confirmation.
+
+The old `lib/actions/*`, `lib/supabase/*`, and client-side auth context were
+removed as part of the migration.
+
+## Tests
+
+Unit tests live under `tests/unit/` and cover:
+
+- entity preference helpers
+- discovery feed filtering
+- profile update validation
+- mutual-like to match creation
+- match-gated messaging and calling
+- controller error mapping
+
+Run them with:
 
 ```bash
-bun install
-bun dev
+npm test
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+If your environment uses Bun instead of npm, the same script is available via
+the package manifest.
