@@ -1,8 +1,8 @@
 "use client";
 
 import { getMyMatchesAction } from "@/app/actions";
-import ChatHeader from "@/components/ChatHeader";
-import StreamChatInterface from "@/components/StreamChatInterface";
+import ChatHeader from "@/app/_components/ChatHeader";
+import StreamChatInterface from "@/app/_components/StreamChatInterface";
 import type { MatchListItemViewModel } from "@/src/interface-adapters/controllers/view-models";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";

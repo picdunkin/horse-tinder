@@ -4,7 +4,7 @@ import {
   getMyDatingProfileAction,
   updateMyDatingProfileAction,
 } from "@/app/actions";
-import PhotoUpload from "@/components/PhotoUpload";
+import PhotoUpload from "@/app/_components/PhotoUpload";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -426,4 +426,3 @@ export default function EditProfilePage() {
     </div>
   );
 }
-

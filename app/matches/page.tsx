@@ -1,9 +1,9 @@
 "use client";
 
 import { getDiscoveryFeedAction, likeProfileAction } from "@/app/actions";
-import MatchButtons from "@/components/MatchButtons";
-import MatchCard from "@/components/MatchCard";
-import MatchNotification from "@/components/MatchNotification";
+import MatchButtons from "@/app/_components/MatchButtons";
+import MatchCard from "@/app/_components/MatchCard";
+import MatchNotification from "@/app/_components/MatchNotification";
 import type {
   DiscoveryCardViewModel,
   MatchListItemViewModel,
