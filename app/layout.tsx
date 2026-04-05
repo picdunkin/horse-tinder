@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/app/_components/Navbar";
+import { displayFont, sansFont } from "@/app/fonts";
 
 export const metadata: Metadata = {
   title: "Horse Tinder",
@@ -13,8 +14,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
-      <body className="h-full antialiased">
+    <html lang="en" className="dark h-full">
+      <body
+        className={`${sansFont.className} ${sansFont.variable} ${displayFont.variable} h-full bg-background text-foreground antialiased`}
+      >
         <div className="min-h-full flex flex-col">
           <Navbar />
           {children}

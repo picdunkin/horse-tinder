@@ -1,10 +1,23 @@
 "use client";
 
 import { confirmEmailAction } from "@/app/(auth)/actions";
+import LoadingState from "@/app/_components/loading-state";
+import PageShell from "@/app/_components/page-shell";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
-export default function AuthCallbackPage() {
+function AuthCallbackPendingState() {
+  return (
+    <PageShell centered width="narrow">
+      <LoadingState
+        title="Confirming your email"
+        description="We are verifying your confirmation link and signing you in."
+      />
+    </PageShell>
+  );
+}
+
+function AuthCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -35,14 +48,13 @@ export default function AuthCallbackPage() {
     confirm();
   }, [router, searchParams]);
 
+  return <AuthCallbackPendingState />;
+}
+
+export default function AuthCallbackPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-pink-100 to-red-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto"></div>
-        <p className="mt-4 text-gray-600 dark:text-gray-400">
-          Confirming your email...
-        </p>
-      </div>
-    </div>
+    <Suspense fallback={<AuthCallbackPendingState />}>
+      <AuthCallbackContent />
+    </Suspense>
   );
 }
