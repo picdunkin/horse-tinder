@@ -2,17 +2,23 @@ import { createClient } from "@supabase/supabase-js";
 import { faker } from "@faker-js/faker";
 import "dotenv/config";
 
-// Configuration
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const PASSWORD = process.env.SUPABASE_DB_PASSWORD;
+function getRequiredEnv(name: string) {
+  const value = process.env[name];
 
-if (!SUPABASE_URL || SUPABASE_SERVICE_ROLE_KEY || PASSWORD) {
-  console.log(
-    "Setup SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY and SUPABASE_DB_PASSWORD",
-  );
-  
+  if (!value) {
+    throw new Error(
+      `Missing required environment variable: ${name}. ` +
+        "Set NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and SUPABASE_DB_PASSWORD.",
+    );
+  }
+
+  return value;
 }
+
+// Configuration
+const SUPABASE_URL = getRequiredEnv("NEXT_PUBLIC_SUPABASE_URL");
+const SUPABASE_SERVICE_ROLE_KEY = getRequiredEnv("SUPABASE_SERVICE_ROLE_KEY");
+const PASSWORD = getRequiredEnv("SUPABASE_DB_PASSWORD");
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 

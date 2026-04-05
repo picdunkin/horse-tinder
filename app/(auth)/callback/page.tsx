@@ -4,9 +4,20 @@ import { confirmEmailAction } from "@/app/(auth)/actions";
 import LoadingState from "@/app/_components/loading-state";
 import PageShell from "@/app/_components/page-shell";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
-export default function AuthCallbackPage() {
+function AuthCallbackPendingState() {
+  return (
+    <PageShell centered width="narrow">
+      <LoadingState
+        title="Confirming your email"
+        description="We are verifying your confirmation link and signing you in."
+      />
+    </PageShell>
+  );
+}
+
+function AuthCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -37,12 +48,13 @@ export default function AuthCallbackPage() {
     confirm();
   }, [router, searchParams]);
 
+  return <AuthCallbackPendingState />;
+}
+
+export default function AuthCallbackPage() {
   return (
-    <PageShell centered width="narrow">
-      <LoadingState
-        title="Confirming your email"
-        description="We are verifying your confirmation link and signing you in."
-      />
-    </PageShell>
+    <Suspense fallback={<AuthCallbackPendingState />}>
+      <AuthCallbackContent />
+    </Suspense>
   );
 }
