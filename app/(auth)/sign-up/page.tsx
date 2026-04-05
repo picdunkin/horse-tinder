@@ -10,8 +10,7 @@ import {
 import { Button } from "@/app/_components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/app/_components/ui/field";
 import { Input } from "@/app/_components/ui/input";
-import { horseHead } from "@lucide/lab";
-import { Icon, TriangleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -42,13 +41,6 @@ export default function SignUpPage() {
   return (
     <PageShell centered width="narrow">
       <div className="mx-auto flex w-full max-w-md flex-col gap-8">
-        <div className="flex items-center gap-3 text-foreground">
-          <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Icon iconNode={horseHead} className="size-5" />
-          </div>
-          <span className="text-2xl font-semibold">Horse Tinder</span>
-        </div>
-
         <div className="space-y-2">
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
             Create your account
@@ -74,7 +66,7 @@ export default function SignUpPage() {
                 required
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="h-12 rounded-xl px-4 text-base md:text-base"
+                className="h-12 px-4 text-base md:text-base"
               />
             </Field>
 
@@ -89,7 +81,8 @@ export default function SignUpPage() {
                 minLength={8}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="h-12 rounded-xl px-4 text-base md:text-base"
+                className="h-12 px-4 text-base md:text-base"
+                placeholder="*********"
               />
             </Field>
 
@@ -105,10 +98,12 @@ export default function SignUpPage() {
           <Button
             type="submit"
             disabled={isPending}
-            className="h-12 w-full rounded-xl text-base md:text-base"
+            className="h-12 w-full text-base md:text-base"
           >
             {isPending ? "Creating account..." : "Sign up"}
           </Button>
+
+          <div aria-hidden="true" className="h-6" />
         </form>
       </div>
     </PageShell>

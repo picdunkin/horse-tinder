@@ -10,11 +10,10 @@ import {
 import { Button } from "@/app/_components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/app/_components/ui/field";
 import { Input } from "@/app/_components/ui/input";
-import { Icon, TriangleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { horseHead } from "@lucide/lab";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -43,13 +42,6 @@ export default function SignInPage() {
   return (
     <PageShell centered width="narrow">
       <div className="mx-auto flex w-full max-w-md flex-col gap-8">
-        <div className="flex items-center gap-3 text-foreground">
-          <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Icon iconNode={horseHead} className="size-5" />
-          </div>
-          <span className="text-2xl font-semibold">Horse Tinder</span>
-        </div>
-
         <div className="space-y-2">
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
             Sign in to your account
