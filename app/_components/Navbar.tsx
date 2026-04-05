@@ -1,9 +1,13 @@
 "use client";
 
 import { getCurrentSessionAction, signOutAction } from "@/app/(auth)/actions";
+import { cn } from "@/app/lib/utils";
+import { Button, buttonVariants } from "@/app/_components/ui/button";
+import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
+import TrotterLogo from "./trotter-logo";
 
 export default function Navbar() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -33,75 +37,57 @@ export default function Navbar() {
     });
   }
 
+  const navLinks = [
+    { href: "/discover", label: "Discover" },
+    { href: "/matches/list", label: "Matches" },
+    { href: "/chat", label: "Messages" },
+    { href: "/profile", label: "Profile" },
+  ];
+
   return (
-    <nav className="relative z-50 bg-slate-900 border-b border-gray-200/50 dark:border-gray-700/50">
-      <div className="container mx-auto px-6">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center space-x-3">
-            <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
-              Horse Tinder
-            </span>
-          </Link>
+    <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <TrotterLogo />
 
-          {userId ? (
-            <div className="hidden md:flex items-center space-x-8">
-              <Link
-                href="/discover"
-                className="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 font-medium transition-colors duration-200"
-              >
-                Discover
-              </Link>
-              <Link
-                href="/matches/list"
-                className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200"
-              >
-                Matches
-              </Link>
-              <Link
-                href="/chat"
-                className="text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 font-medium transition-colors duration-200"
-              >
-                Messages
-              </Link>
-              <Link
-                href="/profile"
-                className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors duration-200"
-              >
-                Profile
-              </Link>
-            </div>
-          ) : null}
+        {userId ? (
+          <div className="hidden items-center gap-2 md:flex">
+            {navLinks.map((link) => {
+              const isActive =
+                pathname === link.href ||
+                (link.href !== "/" && pathname.startsWith(`${link.href}/`));
 
-          {userId ? (
-            <button
-              onClick={handleSignOut}
-              disabled={isPending}
-              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-medium rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
-            >
-              <svg
-                className="w-4 h-4 mr-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                />
-              </svg>
-              {isPending ? "Signing Out..." : "Sign Out"}
-            </button>
-          ) : (
-            <Link
-              href="/sign-in"
-              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-pink-500 to-red-500 text-white text-sm font-medium rounded-lg hover:from-pink-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg"
-            >
-              Sign In
-            </Link>
-          )}
-        </div>
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "sm" }),
+                    isActive && "bg-muted text-foreground",
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
+        ) : null}
+
+        {userId ? (
+          <Button
+            onClick={handleSignOut}
+            disabled={isPending}
+            variant="outline"
+            size="sm"
+            type="button"
+          >
+            <LogOut />
+            {isPending ? "Signing Out..." : "Sign Out"}
+          </Button>
+        ) : (
+          <Button asChild size="sm">
+            <Link href="/sign-in">Sign In</Link>
+          </Button>
+        )}
       </div>
     </nav>
   );

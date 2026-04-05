@@ -1,23 +1,23 @@
 import Link from "next/link";
+import { MailCheck } from "lucide-react";
+
+import EmptyState from "@/app/_components/empty-state";
+import PageShell from "@/app/_components/page-shell";
+import { Button } from "@/app/_components/ui/button";
 
 export default function ConfirmEmailPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-pink-100 to-red-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="max-w-md w-full space-y-6 p-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Confirm your email
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Check your inbox and open the confirmation link to finish creating
-          your account.
-        </p>
-        <Link
-          href="/sign-in"
-          className="inline-flex items-center justify-center rounded-md bg-gradient-to-r from-pink-500 to-red-500 px-4 py-2 text-sm font-medium text-white"
-        >
-          Back to sign in
-        </Link>
-      </div>
-    </div>
+    <PageShell centered width="narrow">
+      <EmptyState
+        icon={<MailCheck className="size-8" />}
+        title="Confirm your email"
+        description="Check your inbox and open the confirmation link to finish creating your account."
+        action={
+          <Button asChild>
+            <Link href="/sign-in">Back to sign in</Link>
+          </Button>
+        }
+      />
+    </PageShell>
   );
 }

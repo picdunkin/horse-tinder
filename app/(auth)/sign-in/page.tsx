@@ -1,9 +1,20 @@
 "use client";
 
 import { signInAction } from "@/app/(auth)/actions";
+import PageShell from "@/app/_components/page-shell";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/app/_components/ui/alert";
+import { Button } from "@/app/_components/ui/button";
+import { Field, FieldGroup, FieldLabel } from "@/app/_components/ui/field";
+import { Input } from "@/app/_components/ui/input";
+import { Icon, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { horseHead } from "@lucide/lab";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -30,74 +41,87 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-pink-100 to-red-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="max-w-md w-full space-y-8 p-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Horse Tinder
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+    <PageShell centered width="narrow">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-8">
+        <div className="flex items-center gap-3 text-foreground">
+          <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <Icon iconNode={horseHead} className="size-5" />
+          </div>
+          <span className="text-2xl font-semibold">Horse Tinder</span>
+        </div>
+
+        <div className="space-y-2">
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
             Sign in to your account
+          </h1>
+          <p className="text-base text-muted-foreground">
+            Don&apos;t have an account?{" "}
+            <Link href="/sign-up" className="font-medium text-foreground">
+              Sign up
+            </Link>
           </p>
         </div>
 
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 dark:bg-gray-800 dark:text-white"
-              placeholder="Enter your email"
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="email" className="text-base font-medium">
+                Email
+              </FieldLabel>
+              <Input
+                id="email"
+                type="email"
+                placeholder="stallion@stable.com"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className="h-12 px-4 text-base md:text-base"
+              />
+            </Field>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 dark:bg-gray-800 dark:text-white"
-              placeholder="Enter your password"
-            />
-          </div>
+            <Field>
+              <FieldLabel htmlFor="password" className="text-base font-medium">
+                Password
+              </FieldLabel>
+              <Input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                className="h-12 px-4 text-base md:text-base"
+                placeholder="*********"
+              />
+            </Field>
 
-          {error ? (
-            <div className="text-red-600 dark:text-red-400 text-sm">{error}</div>
-          ) : null}
+            {error ? (
+              <Alert variant="destructive">
+                <TriangleAlert />
+                <AlertTitle>Sign-in failed</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            ) : null}
+          </FieldGroup>
 
-          <button
+          <Button
             type="submit"
             disabled={isPending}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 disabled:opacity-50"
+            className="h-12 w-full text-base md:text-base"
           >
-            {isPending ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
+            {isPending ? "Signing in..." : "Sign in"}
+          </Button>
 
-        <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-          Need an account?{" "}
-          <Link href="/sign-up" className="text-pink-600 dark:text-pink-400">
-            Sign up
-          </Link>
-        </div>
+          <p className="text-base text-muted-foreground">
+            Forgot your password?{" "}
+            <Link
+              href="/error?message=Password%20reset%20is%20not%20available%20yet."
+              className="font-medium text-foreground"
+            >
+              Reset password
+            </Link>
+          </p>
+        </form>
       </div>
-    </div>
+    </PageShell>
   );
 }
