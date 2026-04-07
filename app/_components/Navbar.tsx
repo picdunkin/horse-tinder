@@ -14,6 +14,7 @@ export default function Navbar() {
   const [isPending, startTransition] = useTransition();
   const pathname = usePathname();
   const router = useRouter();
+  const logoUrl = userId ? "/discover" : "/";
 
   useEffect(() => {
     async function loadSession() {
@@ -39,15 +40,14 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/discover", label: "Discover" },
-    { href: "/matches/list", label: "Matches" },
-    { href: "/chat", label: "Messages" },
+    { href: "/matches/list", label: "Chat" },
     { href: "/profile", label: "Profile" },
   ];
 
   return (
     <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <TrotterLogo />
+        <TrotterLogo href={logoUrl} />
 
         {userId ? (
           <div className="hidden items-center gap-2 md:flex">
