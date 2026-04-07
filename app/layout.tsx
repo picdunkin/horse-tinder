@@ -18,9 +18,9 @@ export default function RootLayout({
       <body
         className={`${sansFont.className} ${sansFont.variable} ${displayFont.variable} h-full bg-background text-foreground antialiased`}
       >
-        <div className="min-h-full flex flex-col">
+        <div className="flex min-h-dvh flex-col">
           <Navbar />
-          {children}
+          <main className="flex min-h-0 flex-1 flex-col">{children}</main>
         </div>
       </body>
     </html>
